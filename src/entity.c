@@ -81,12 +81,13 @@ void entity_free(Entity* self) {
 	if (!self) {
 		return;
 	}
-
+	slog("Freeing Entity");
 	gf2d_sprite_free(self->sprite);
 	//anything else allocated for the entity would be cleaned up here
 	if (self->free) {
 		self->free(self->data);
 	}
+	memset(self, 0, sizeof(Entity));
 };
 
 void entity_think(Entity* self) {

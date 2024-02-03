@@ -30,14 +30,28 @@ Entity *player_new() {
 };
 
 void player_think(Entity* self) {
+	const Uint8* keys;
 	Vector2D dir = { 0 };
 	Sint32 mx = 0, my = 0;
+	keys = SDL_GetKeyboardState(NULL);
 	if (!self) return;
-	SDL_GetMouseState(&mx, &my);
-	if (self->position.x < mx) dir.x = 1;
-	if (self->position.y < my) dir.y = 1;
-	if (self->position.x > mx) dir.x = -1;
-	if (self->position.y > my) dir.y = -1;
+	if (keys[SDL_SCANCODE_W])
+	{
+		dir.y = -1;
+	}
+	if (keys[SDL_SCANCODE_A])
+	{
+		dir.x = -1;
+	}
+	if (keys[SDL_SCANCODE_S])
+	{
+		dir.y = 1;
+	}
+	if (keys[SDL_SCANCODE_D])
+	{
+		dir.x = 1;
+	}
+
 	vector2d_normalize(&dir);
 	vector2d_scale(self->velocity,dir,3);
 };

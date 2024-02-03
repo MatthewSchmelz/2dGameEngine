@@ -105,6 +105,9 @@
     <ClCompile Include="..\..\src\player.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\e_fighter.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\include\gf2d_draw.h">
@@ -197,7 +200,10 @@
     <ClInclude Include="..\..\include\entity.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="player.h">
+    <ClInclude Include="..\..\include\e_fighter.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\player.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
