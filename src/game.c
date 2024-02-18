@@ -1,19 +1,25 @@
 #include <SDL.h>
 #include "simple_logger.h"
+#include "gfc_input.h"
 
 #include "gf2d_graphics.h"
 #include "gf2d_sprite.h"
 #include "entity.h"
 #include "player.h"
 #include "e_fighter.h"
+#include "e_bullet.h"
 
-\
+
 Entity* player = NULL;
 Entity* fighter = NULL;
+Vector2D mLoc;
 
 
-#define MAX_FIGHTERS 10 // Adjust the maximum number of fighters as needed
+#define MAX_FIGHTERS 50 // Adjust the maximum number of fighters as needed
 Entity* fighters[MAX_FIGHTERS] = { NULL }; // Array to store pointers to fighters
+
+#define MAX_BULLETS 1000 // Adjust the maximum number of fighters as needed
+Entity* bullets[MAX_BULLETS] = { NULL }; // Array to store pointers to fighters
 
 
 Uint32 callback_mob(Uint32 interval, void* param) {
@@ -31,7 +37,6 @@ Uint32 callback_mob(Uint32 interval, void* param) {
         fighters[emptySlot] = fighter_new();
     }
 
-    // Code for other functionalities...
 
     return interval; // Return the interval for the timer
 }
@@ -64,10 +69,11 @@ int main(int argc, char * argv[])
         vector4d(0,0,0,255),
         0);
     gf2d_graphics_set_frame_delay(16);
-    gf2d_sprite_init(1024);
-    entity_system_init(1024);
+    gf2d_sprite_init(10000);
+    entity_system_init(10000);
+    
     SDL_ShowCursor(SDL_DISABLE);
-
+    gfc_input_init("config/input.cfg");
     //Timers for Mobs
     SDL_TimerID timerTime = SDL_AddTimer(2000, callback_mob, NULL);
     
@@ -78,12 +84,18 @@ int main(int argc, char * argv[])
     /*main game loop*/
     while(!done)
     {
+        gfc_input_update();
         SDL_PumpEvents();   // update SDL's internal event structures
         keys = SDL_GetKeyboardState(NULL); // get the keyboard state for this frame
         /*update things here*/
+        //Handling the Mouse
         SDL_GetMouseState(&mx,&my);
         mf+=0.1;
         if (mf >= 16.0)mf = 0;
+        mLoc.x = mx;
+        mLoc.y = my;
+
+
         entity_system_think();
         entity_system_update();
         for (int i = 0; i < MAX_FIGHTERS; ++i) {
@@ -96,21 +108,67 @@ int main(int argc, char * argv[])
 
         gf2d_graphics_clear_screen();// clears drawing buffers
         // all drawing should happen betweem clear_screen and next_frame
-            //backgrounds drawn first
-            gf2d_sprite_draw_image(sprite,vector2d(0,0));
+        //backgrounds drawn first
+        gf2d_sprite_draw_image(sprite,vector2d(0,0));
             
-            entity_system_draw();
+        entity_system_draw();
 
-            //UI elements last
-            gf2d_sprite_draw(
-                mouse,
-                vector2d(mx,my),
-                NULL,
-                NULL,
-                NULL,
-                NULL,
-                &mouseColor,
-                (int)mf);
+        //UI elements last
+        gf2d_sprite_draw(
+        mouse,
+        vector2d(mx,my),
+        NULL,
+        NULL,
+        NULL,
+        NULL,
+        &mouseColor,
+        (int)mf);
+
+        if (gfc_input_command_pressed("fire")){
+            
+            int emptySlot = -1;
+            for (int i = 0; i < MAX_BULLETS; ++i) {
+                if (bullets[i] == NULL) {
+                    emptySlot = i;
+                    break;
+                }
+            }
+
+            // Create a new fighter if there's an empty slot
+            if (emptySlot != -1) {
+                
+                bullets[emptySlot] = bullet_new(player, mLoc);
+            }
+            else {
+                slog("Bullet Array Full!");
+            }
+
+        }
+        //Other abilites here
+
+
+        //The Great bullet Collide Loop 
+   
+
+        
+        for (int i = 0; i < MAX_BULLETS; ++i) {
+            if (bullets[i] != NULL) {
+                //For every bullet on the field, we must check every entity of the opposing team to see if it collides
+                for (int j = 0; j < MAX_FIGHTERS; j++) {
+                    if (fighters[j] != NULL) {
+                        if(check_collision(bullets[i], fighters[j])){
+                            slog("Found Collision");
+                            fighter_free(fighters[j]);
+                        }
+                    }
+                }
+                   
+            }
+        }
+        
+   
+
+
 
         gf2d_graphics_next_frame();// render current draw frame and skip to the next frame
         

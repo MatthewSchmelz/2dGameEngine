@@ -27,6 +27,8 @@ Entity *player_new() {
 	self ->think = player_think;
 	self->update = player_update;
 	self->free = player_free;
+	self->hitbox = gfc_circle(self->position.x, self->position.y, 10);
+	self->team = 0;
 };
 
 void player_think(Entity* self) {
@@ -60,6 +62,8 @@ void player_update(Entity* self) {
 	self->frame += 0.1;
 	if (self->frame >= 16) self->frame = 0;
 	vector2d_add(self->position, self->position, self->velocity);
+	//Update the hitbox
+	self->hitbox = gfc_circle(self->position.x, self->position.y, 10);
 };
 void player_free(Entity* self) {
 	if (!self) return;

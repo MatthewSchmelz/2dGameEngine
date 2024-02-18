@@ -4,10 +4,30 @@
 
 #include <gfc_types.h>
 #include "gf2d_sprite.h"
+#include "gfc_shape.h"
 /*
 	@purpose make an entity on the screen
 */
 
+typedef struct Entity_S Entity;
+
+struct Entity_S {
+	Uint8 _inuse;
+	Sprite* sprite;
+	float frame;
+	Vector2D position;
+	Vector2D velocity;
+	void (*think)(Entity* self);
+	void (*update)(Entity* self);
+	void (*free)(Entity* self);
+	void* data;
+	Entity* owner; // Now Entity is a forward declaration
+	Vector2D slope;
+	Circle hitbox; //gives us a simple area for where the hitbox of the entity is and saves me math
+	int team; //0 for player 1 for enemies.
+};
+
+/*
 typedef struct Entity_S {
 	Uint8 _inuse; //Is the Entity in Use :: FLAG
 	Sprite *sprite; //Entity's sprite
@@ -18,8 +38,11 @@ typedef struct Entity_S {
 	void (*update)(struct Entity_S *self); //Entity's think function to execute decisons
 	void (*free)(struct Entity_S* self); //Free allocated data
 	void *data; //For ad hoc addition data for the entity
+	Entity* owner; //If the entity has an owner, for use in bullets
+	Vector2D slope; //for bullets, the slope they are moving at
 }Entity;
 
+*/
 /*
 	@brief initalizes the entity management system and queues cleanup on exit
 	@param 'max' the manximum numbver of entities that can exist at once

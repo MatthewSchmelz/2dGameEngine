@@ -81,7 +81,7 @@ void entity_free(Entity* self) {
 	if (!self) {
 		return;
 	}
-	slog("Freeing Entity");
+	//slog("Freeing Entity");
 	gf2d_sprite_free(self->sprite);
 	//anything else allocated for the entity would be cleaned up here
 	if (self->free) {
@@ -159,6 +159,19 @@ void entity_system_draw() {
 	}
 };
 
+// Function to check collision between two entities
+int check_collision(Entity* entity1, Entity* entity2) {
+	// Check if entities are on different teams
+	if (entity1 == NULL || entity2 == NULL) {
+		slog("One or two entities not found");
+		return 0;
+	}
+	if (entity1->team != entity2->team) {
+		// Assuming hitbox is a member of Entity representing its collision shape
+		return gfc_circle_overlap(entity1->hitbox, entity2->hitbox);
+	}
+	return 0;
+}
 
 
 

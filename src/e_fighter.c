@@ -28,6 +28,8 @@ Entity* fighter_new() {
 	self->think = fighter_think;
 	self->update = fighter_update;
 	self->free = fighter_free;
+	self->hitbox = gfc_circle(self->position.x, self->position.y, 10);
+	self->team = 1;
 };
 
 void fighter_think(Entity* self) {
@@ -50,6 +52,7 @@ void fighter_update(Entity* self) {
 	self->frame += 0.1;
 	if (self->frame >= 16) self->frame = 0;
 	vector2d_add(self->position, self->position, self->velocity);
+	self->hitbox = gfc_circle(self->position.x, self->position.y, 10);
 };
 void fighter_free(Entity* self) {
 	if (!self) return;
@@ -62,8 +65,10 @@ void fighter_pursue(Entity* self, Entity* target) {
 	if (!target || !self) {
 		slog("Missing Enities for fighter_pursue");
 		return;
-	} 
+	}
 	Vector2D loc = target->position;
+	/*
+	
 	
 	float dx = self->position.x - loc.x;
 	float dy = self->position.y - loc.y;
@@ -73,6 +78,16 @@ void fighter_pursue(Entity* self, Entity* target) {
 	if (distanceSquared <= 100) {
 		entity_free(self);
 	}
+	*/
+
+	//Test hitboxes using gfc_circles
+	if (gfc_circle_overlap(self->hitbox,target->hitbox)) {
+		entity_free(self);
+
+		//Damage the player here
+
+	}
+	
 
 	
 
