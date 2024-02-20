@@ -20,6 +20,7 @@ struct Entity_S {
 	void (*think)(Entity* self);
 	void (*update)(Entity* self);
 	void (*free)(Entity* self);
+	void (*draw)(Entity* self);
 	void* data;
 	Entity* owner; // Now Entity is a forward declaration
 	Vector2D slope;

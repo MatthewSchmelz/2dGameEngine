@@ -133,10 +133,19 @@ void entity_draw(Entity* self) {
 	if (!self) {
 		return;
 	}
+	if (self->draw) {
+		self->draw(self);
+		return;
+	} 
 	if (self->sprite) {
+		//Create a draw offset
+		Vector2D drawOffset;
+		drawOffset.x = self->position.x-64;
+		drawOffset.y = self->position.y-64;
+
 		gf2d_sprite_render(
 			self->sprite,
-			self->position,
+			drawOffset,
 			NULL,
 			NULL,
 			NULL,

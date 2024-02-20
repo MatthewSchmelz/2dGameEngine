@@ -27,7 +27,7 @@ Entity *player_new() {
 	self ->think = player_think;
 	self->update = player_update;
 	self->free = player_free;
-	self->hitbox = gfc_circle(self->position.x, self->position.y, 10);
+	self->hitbox = gfc_circle(self->position.x+128, self->position.y+128, 10);
 	self->team = 0;
 };
 

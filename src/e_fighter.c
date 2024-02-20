@@ -28,7 +28,7 @@ Entity* fighter_new() {
 	self->think = fighter_think;
 	self->update = fighter_update;
 	self->free = fighter_free;
-	self->hitbox = gfc_circle(self->position.x, self->position.y, 10);
+	self->hitbox = gfc_circle(self->position.x, self->position.y, 300);
 	self->team = 1;
 };
 

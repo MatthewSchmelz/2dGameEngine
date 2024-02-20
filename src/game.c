@@ -4,6 +4,9 @@
 
 #include "gf2d_graphics.h"
 #include "gf2d_sprite.h"
+
+#include "gf2d_draw.h"
+
 #include "entity.h"
 #include "player.h"
 #include "e_fighter.h"
@@ -15,7 +18,7 @@ Entity* fighter = NULL;
 Vector2D mLoc;
 
 
-#define MAX_FIGHTERS 50 // Adjust the maximum number of fighters as needed
+#define MAX_FIGHTERS 10 // Adjust the maximum number of fighters as needed
 Entity* fighters[MAX_FIGHTERS] = { NULL }; // Array to store pointers to fighters
 
 #define MAX_BULLETS 1000 // Adjust the maximum number of fighters as needed
@@ -101,10 +104,20 @@ int main(int argc, char * argv[])
         for (int i = 0; i < MAX_FIGHTERS; ++i) {
             if (fighters[i] != NULL) {
                 fighter_pursue(fighters[i], player);
+                //Check if player has been collied with
+                if (gfc_circle_overlap(fighters[i]->hitbox, player->hitbox)) {
+                    fighter_free(fighters[i]);
+                    fighters[i] = NULL;
+
+                    //Damage the player here
+
+                }
             }
         }
         
-        
+    
+
+
 
         gf2d_graphics_clear_screen();// clears drawing buffers
         // all drawing should happen betweem clear_screen and next_frame
@@ -114,6 +127,10 @@ int main(int argc, char * argv[])
         entity_system_draw();
 
         //UI elements last
+
+        //gf2d_draw_rect_filled(gfc_rect(0, 0, 10000, 200), GFC_COLOR_DARKGREY);
+
+
         gf2d_sprite_draw(
         mouse,
         vector2d(mx,my),
@@ -150,21 +167,28 @@ int main(int argc, char * argv[])
         //The Great bullet Collide Loop 
    
 
-        
+      
         for (int i = 0; i < MAX_BULLETS; ++i) {
             if (bullets[i] != NULL) {
                 //For every bullet on the field, we must check every entity of the opposing team to see if it collides
                 for (int j = 0; j < MAX_FIGHTERS; j++) {
                     if (fighters[j] != NULL) {
+
                         if(check_collision(bullets[i], fighters[j])){
                             slog("Found Collision");
                             fighter_free(fighters[j]);
+                            bullet_free(bullets[i]);
+                            fighters[j] = NULL;
+                            bullets[i] = NULL;
                         }
                     }
                 }
                    
             }
         }
+
+
+
         
    
 
@@ -176,6 +200,17 @@ int main(int argc, char * argv[])
         //slog("Rendering at %f FPS",gf2d_graphics_get_frames_per_second());
     }
 
+    //Check to see if bullets are out of range
+    for (int i = 0; i < MAX_BULLETS; ++i) {
+        if (bullets[i] != NULL) {
+            //For every bullet on the field, we must check every entity of the opposing team to see if it collides
+            if ((bullets[i]->position.x < 0 || bullets[i]->position.x > 1200) || (bullets[i]->position.y < 0 || bullets[i]->position.y > 720)) {
+                slog("bullet out of play area, cleaning up.");
+                bullet_free(bullets[i]);
+                bullets[i] = NULL;
+            }
+        }
+    }
     entity_free(player);
     slog("---==== END ====---");
     return 0;

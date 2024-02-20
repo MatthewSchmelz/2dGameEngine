@@ -5,12 +5,14 @@
 void bullet_think(Entity* self);
 void bullet_update(Entity* self);
 void bullet_free(Entity* self);
+void bullet_draw(Entity* self);
 
 
 
 Entity* bullet_new(Entity* shooter, Vector2D location) {
 	Entity* self;
 	Vector2D slop;
+	Vector2D adjustposition;
 	self = entity_new();
 	if (!self) {
 		slog("failed to spawn a player");
@@ -29,7 +31,9 @@ Entity* bullet_new(Entity* shooter, Vector2D location) {
 	self->think = bullet_think;
 	self->update = bullet_update;
 	self->free = bullet_free;
+	self->draw = bullet_draw;
 	self->owner = shooter;
+	//Move the bullet to the center of the player
 	self->position = shooter->position;
 
 	//We need to get the slope that the bullt is moving at, this can be stored as a Vector2D, rise/run
@@ -37,7 +41,8 @@ Entity* bullet_new(Entity* shooter, Vector2D location) {
 	slop.y = (location.y - self->position.y);
 	self->slope = slop;
 
-	self->hitbox = gfc_circle(self->position.x, self->position.y, 50);
+	//self->hitbox = gfc_circle(self->position.x+64, self->position.y+64, 300);
+	self->hitbox = gfc_circle(self->position.x, self->position.y, 300);
 	self->team = shooter->team;
 	slog("Bullet fired");
 
@@ -62,11 +67,7 @@ void bullet_update(Entity* self) {
 	vector2d_add(self->position, self->position, self->velocity);
 	self->hitbox = gfc_circle(self->position.x, self->position.y, 10);
 	//Check to see if bullets are out of the play area
-	if ((self->position.x < 0 || self->position.x > 1200) || (self->position.y < 0 || self->position.y > 720)) {
-		slog("bullet out of play area, cleaning up.");
-		bullet_free(self);
-		
-	}
+
 
 };
 void bullet_free(Entity* self) {
@@ -74,7 +75,20 @@ void bullet_free(Entity* self) {
 	entity_free(self);
 };
 
+void bullet_draw(Entity* self) {
 
+	gf2d_sprite_render(
+		self->sprite,
+		self->position,
+		NULL,
+		NULL,
+		NULL,
+		NULL,
+		NULL,
+		NULL,
+		(Uint32)self->frame
+	);
+}
 
 
 
