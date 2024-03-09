@@ -1,4 +1,5 @@
 #include "simple_logger.h"
+#include "camera.h"
 #include "e_bullet.h"
 
 
@@ -26,15 +27,16 @@ Entity* bullet_new(Entity* shooter, Vector2D location) {
 		0
 	); //Entity's sprite
 	self->frame = 0;
-	self->position = vector2d(0, 0); // Entity's Position
-
+	self->position = shooter->position;
 	self->think = bullet_think;
 	self->update = bullet_update;
 	self->free = bullet_free;
 	self->draw = bullet_draw;
 	self->owner = shooter;
 	//Move the bullet to the center of the player
-	self->position = shooter->position;
+	self->position.x += 64;
+	self->position.y += 64;
+
 
 	//We need to get the slope that the bullt is moving at, this can be stored as a Vector2D, rise/run
 	slop.x = (location.x - self->position.x);
@@ -76,10 +78,12 @@ void bullet_free(Entity* self) {
 };
 
 void bullet_draw(Entity* self) {
-
+	Vector2D camOffset, position;
+	camOffset = camera_get_offset();
+	vector2d_add(position, self->position, camOffset);
 	gf2d_sprite_render(
 		self->sprite,
-		self->position,
+		position,
 		NULL,
 		NULL,
 		NULL,

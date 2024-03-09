@@ -1,4 +1,5 @@
 #include "simple_logger.h"
+#include "camera.h"
 #include "entity.h"
 
 typedef struct
@@ -118,6 +119,24 @@ void entity_update(Entity* self) {
 	}
 }
 
+void entity_damage(Entity* self) {
+	if (!self) {
+		return;
+	}
+	if (self->damage) {
+		self->damage(self);
+		return;
+	}
+
+	if (self->health > 0) {
+		self->health = self->health - 1;
+	}
+	else {
+		self->free(self);
+	}
+
+}
+
 void entity_system_update() {
 	int i;
 	for (i = 0; i < _entity_manager.entity_max; i++) {
@@ -130,22 +149,24 @@ void entity_system_update() {
 
 
 void entity_draw(Entity* self) {
+	Vector2D camOffset,position;
 	if (!self) {
 		return;
 	}
+	camOffset = camera_get_offset();
 	if (self->draw) {
 		self->draw(self);
 		return;
 	} 
 	if (self->sprite) {
 		//Create a draw offset
-		Vector2D drawOffset;
-		drawOffset.x = self->position.x-64;
-		drawOffset.y = self->position.y-64;
-
+		//Vector2D drawOffset;
+		//drawOffset.x = self->position.x-32;
+		//drawOffset.y = self->position.y-32;
+		vector2d_add(position,self->position,camOffset);
 		gf2d_sprite_render(
 			self->sprite,
-			drawOffset,
+			position,
 			NULL,
 			NULL,
 			NULL,

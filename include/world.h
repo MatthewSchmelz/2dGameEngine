@@ -15,6 +15,15 @@ typedef struct {
 
 
 /*
+	@brief load a world from a config file
+	@param filename the name of the world file to load
+	@return NULL on error or a useable world otherwise
+*/
+World* world_load(const char* filename);
+
+
+World* world_test_new();
+/*
 	@Brief allocates a new empty world
 	@returns NULL on error or a blank world
 */
@@ -31,5 +40,12 @@ void world_free(World * world);
 
 
 void world_draw(World * world);
+
+/*
+	@brief set the camera bounds to thr world size
+
+*/
+void world_setup_camera(World* world);
+
 
 #endif

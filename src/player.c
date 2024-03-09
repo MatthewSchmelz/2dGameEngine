@@ -1,4 +1,5 @@
 #include "simple_logger.h"
+#include "camera.h"
 #include "player.h"
 
 
@@ -29,6 +30,7 @@ Entity *player_new() {
 	self->free = player_free;
 	self->hitbox = gfc_circle(self->position.x+128, self->position.y+128, 10);
 	self->team = 0;
+	self->health = 2;
 };
 
 void player_think(Entity* self) {
@@ -64,6 +66,9 @@ void player_update(Entity* self) {
 	vector2d_add(self->position, self->position, self->velocity);
 	//Update the hitbox
 	self->hitbox = gfc_circle(self->position.x, self->position.y, 10);
+	camera_center_on(self->position);
+
+
 };
 void player_free(Entity* self) {
 	if (!self) return;

@@ -21,11 +21,13 @@ struct Entity_S {
 	void (*update)(Entity* self);
 	void (*free)(Entity* self);
 	void (*draw)(Entity* self);
+	void (*damage)(Entity* self);
 	void* data;
 	Entity* owner; // Now Entity is a forward declaration
 	Vector2D slope;
 	Circle hitbox; //gives us a simple area for where the hitbox of the entity is and saves me math
 	int team; //0 for player 1 for enemies.
+	int health;
 };
 
 /*
@@ -87,6 +89,8 @@ void entity_system_update();
 	@brief run the draw functions for all active entities
 */
 void entity_system_draw();
+
+void entity_damage(Entity* self);
 
 
 #endif
