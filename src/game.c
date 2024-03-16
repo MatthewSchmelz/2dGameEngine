@@ -443,6 +443,15 @@ int main(int argc, char * argv[])
                                 fighters[j] = NULL;
                                 currScore++;
                             }
+                            else {
+                                if (blast == 1) {
+                                    entity_damage(fighters[j]);
+                                    if (!fighters[j]) {
+                                        fighters[j] = NULL;
+                                        currScore++;
+                                    }
+                                }
+                            }
                             
                             bullet_free(bullets[i]);
                             bullets[i] = NULL;

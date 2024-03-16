@@ -56,7 +56,7 @@ Entity* hero_new() {
 	self->free = hero_free;
 	self->hitbox = gfc_circle(self->position.x, self->position.y, 400);
 	self->team = 1;
-	self->health = 1;
+	self->health = 3;
 	self->pursue = hero_pursue;
 	self->draw = hero_draw;
 };
