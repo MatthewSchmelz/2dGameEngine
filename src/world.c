@@ -254,8 +254,20 @@ void world_setup_camera(World* world) {
 
 
 
+Vector2D tile_to_position(Vector2D tilemap) {
+	//Sets the position to the centerpoint of a tile
+	tilemap.x = (tilemap.x * 64) + 32;
+	tilemap.y = (tilemap.y * 64) + 32;
 
+	return tilemap;
+}
 
+Vector2D position_to_tile(Vector2D pos) {
+	pos.x = floor(pos.x / 64);
+	pos.y = floor(pos.y / 64);
+
+	return pos;
+}
 
 
 

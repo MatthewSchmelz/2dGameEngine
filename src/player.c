@@ -6,7 +6,10 @@
 void player_think(Entity *self);
 void player_update(Entity* self);
 void player_free(Entity* self);
+void player_damage(Entity* self);
 
+
+extern int invuln, stompOn;
 
 Entity *player_new() {
 	Entity* self;
@@ -28,7 +31,8 @@ Entity *player_new() {
 	self ->think = player_think;
 	self->update = player_update;
 	self->free = player_free;
-	self->hitbox = gfc_circle(self->position.x+128, self->position.y+128, 10);
+	self->damage = player_damage;
+	self->hitbox = gfc_circle(self->position.x+64, self->position.y+64, 10);
 	self->team = 0;
 	self->health = 2;
 };
@@ -65,7 +69,13 @@ void player_update(Entity* self) {
 	if (self->frame >= 16) self->frame = 0;
 	vector2d_add(self->position, self->position, self->velocity);
 	//Update the hitbox
-	self->hitbox = gfc_circle(self->position.x, self->position.y, 10);
+	if (stompOn) {
+		self->hitbox = gfc_circle(self->position.x+64, self->position.y+64, 400);
+	}
+	else {
+		self->hitbox = gfc_circle(self->position.x+64, self->position.y+64, 10);
+	}
+	
 	camera_center_on(self->position);
 
 
@@ -74,7 +84,20 @@ void player_free(Entity* self) {
 	if (!self) return;
 };
 
+void player_damage(Entity* self) {
+	slog("player damaged");
+	if (invuln == 1) {
+		return;
+		slog("Player took damage but was shielded");
+	}
 
+	if (self->health > 0) {
+		self->health = self->health - 1;
+	}
+	else {
+		slog("Player Took Lethal Hit.");
+	}
+}
 
 
 

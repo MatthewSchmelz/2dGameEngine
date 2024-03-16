@@ -5,7 +5,7 @@
 #include "gf2d_draw.h"
 #include "font.h"
 #include "gfc_input.h"
-
+#include "shop.h"
 
 
 //We have 1200 Width and 720 height
@@ -148,6 +148,6 @@ void shop() {
 	else {
 		gf2d_draw_rect_filled(gfc_rect(740, 460, 240, 90), GFC_COLOR_DARKGREY);
 	}
-	font_draw_test("Unknown", FS_large, GFC_COLOR_WHITE, vector2d(750, 480));
+	font_draw_test("Confusion", FS_large, GFC_COLOR_WHITE, vector2d(750, 480));
 
 }

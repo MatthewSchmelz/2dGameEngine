@@ -22,6 +22,7 @@ struct Entity_S {
 	void (*free)(Entity* self);
 	void (*draw)(Entity* self);
 	void (*damage)(Entity* self);
+	void (*pursue)(Entity* self, Entity * target);
 	void* data;
 	Entity* owner; // Now Entity is a forward declaration
 	Vector2D slope;
@@ -91,6 +92,8 @@ void entity_system_update();
 void entity_system_draw();
 
 void entity_damage(Entity* self);
+
+void entity_pursue(Entity* self, Entity* target);
 
 
 #endif

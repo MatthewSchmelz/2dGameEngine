@@ -47,5 +47,8 @@ void world_draw(World * world);
 */
 void world_setup_camera(World* world);
 
+Vector2D tile_to_position(Vector2D tilemap);
+
+Vector2D position_to_tile(Vector2D pos);
 
 #endif

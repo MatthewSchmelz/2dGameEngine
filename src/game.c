@@ -13,6 +13,15 @@
 #include "player.h"
 #include "world.h"
 #include "e_fighter.h"
+#include "e_mage.h"
+#include "e_rogue.h"
+#include "e_tank.h"
+#include "e_paladin.h"
+#include "e_archmage.h"
+#include "e_hero.h"
+#include "e_barbarian.h"
+#include "e_ninja.h"
+#include "e_shadowmage.h"
 #include "e_bullet.h"
 #include "shop.h"
 
@@ -22,19 +31,23 @@ Entity* fighter = NULL;
 Vector2D mLoc;
 
 
-#define MAX_FIGHTERS 10 // Adjust the maximum number of fighters as needed
+#define MAX_FIGHTERS 1000 // Adjust the maximum number of fighters as needed
 Entity* fighters[MAX_FIGHTERS] = { NULL }; // Array to store pointers to fighters
 
 #define MAX_BULLETS 1000 // Adjust the maximum number of fighters as needed
 Entity* bullets[MAX_BULLETS] = { NULL }; // Array to store pointers to fighters
 
 
-//Player Abilities bool
+//Player Abilities Owned bool
 int blast = 0, teleport = 0, stomp = 0, shield = 0, snap = 0;
 //Map Abilities 
 int gas = 0, spike = 0, healing = 0, fog = 0, walls =0;
+//player abilities activated bools
+int invuln = 0, stompOn = 0;
 
+int pet =0;
 
+int summontype =0;
 
 Uint32 callback_mob(Uint32 interval, void* param) {
     // Find an empty slot in the array
@@ -48,13 +61,112 @@ Uint32 callback_mob(Uint32 interval, void* param) {
 
     // Create a new fighter if there's an empty slot
     if (emptySlot != -1) {
-        fighters[emptySlot] = fighter_new();
+        //Random spawn in fighters
+        switch (summontype) {
+        case 0:
+            fighters[emptySlot] = fighter_new();
+            summontype++;
+            break;
+        case 1:
+            fighters[emptySlot] = mage_new();
+            summontype++;
+            break;
+        case 2:
+            fighters[emptySlot] = rogue_new();
+            summontype++;
+            break;
+        case 3:
+            fighters[emptySlot] = tank_new();
+            summontype++;
+            break;
+        case 4:
+            fighters[emptySlot] = paladin_new();
+            summontype++;
+            break;
+        case 5:
+            fighters[emptySlot] = archmage_new();
+            summontype++;
+            break;
+        case 6:
+            fighters[emptySlot] = hero_new();
+            summontype++;
+            break;
+        case 7:
+            fighters[emptySlot] = barbarian_new();
+            summontype++;
+            break;
+        case 8:
+            fighters[emptySlot] = ninja_new();
+            summontype++;
+            break;
+        case 9:
+            fighters[emptySlot] = shadowmage_new();
+            summontype++;
+            break;
+        case 10:
+            summontype = 0;
+            break;
+        default:
+            summontype = 0;
+            break;
+
+        }
+
     }
 
 
     return interval; // Return the interval for the timer
 }
 
+//Callsback the shield function to make the player stop being immune
+Uint32 callback_shield(Uint32 interval, void* param) {
+    invuln = 0;
+    return 0;
+}
+
+Uint32 callback_stomp(Uint32 interval, void* param) {
+    stompOn = 0;
+    invuln = 0;
+    return 0;
+}
+
+Uint32 callback_poison(Uint32 interval, void* param) {
+   
+    for (int j = 0; j < MAX_FIGHTERS; j++) {
+        if (fighters[j] != NULL) {
+            if (gfc_crandom() > 0.6) {
+                entity_damage(fighters[j]);
+                
+            }
+
+        }
+    }
+    return interval;
+}
+
+Uint32 callback_regen(Uint32 interval, void* param) {
+
+    if (player->health < 2) {
+        player->health++;
+    }
+    return interval;
+}
+
+Uint32 callback_pet(Uint32 interval, void* param) {
+    pet = 0;
+    slog("enemies released");
+
+    return 0;
+
+}
+
+Uint32 callback_stun(Uint32 interval, void* param) {
+    pet = 1;
+    slog("Enemies stunned");
+    SDL_TimerID timerStun = SDL_AddTimer(5000, callback_pet, NULL);
+
+    return interval;
+}
 
 
 
@@ -133,18 +245,26 @@ int main(int argc, char * argv[])
 
         entity_system_think();
         entity_system_update();
-        for (int i = 0; i < MAX_FIGHTERS; ++i) {
-            if (fighters[i] != NULL) {
-                fighter_pursue(fighters[i], player);
-                //Check if player has been collied with
-                if (gfc_circle_overlap(fighters[i]->hitbox, player->hitbox)) {
-                    fighter_free(fighters[i]);
-                    fighters[i] = NULL;
 
-                    //Damage the player here
+        //Implement the perfifying
+        if (!pet) {
+            for (int i = 0; i < MAX_FIGHTERS; ++i) {
+                if (fighters[i] != NULL) {
 
+                    entity_pursue(fighters[i], player);
+                    //Check if player has been collied with
+                    if (gfc_circle_overlap(fighters[i]->hitbox, player->hitbox)) {
+                        fighter_free(fighters[i]);
+                        fighters[i] = NULL;
+
+                        //Damage the player here
+
+                    }
                 }
+        
+        
             }
+
         }
         
     
@@ -166,6 +286,21 @@ int main(int argc, char * argv[])
             shop(player);
         
         }
+        if (gas) {
+            gas = 0;
+            SDL_TimerID timerGas = SDL_AddTimer(4000, callback_poison, NULL);
+        }
+        if (healing) {
+            healing = 0;
+            SDL_TimerID timerHeal = SDL_AddTimer(10000, callback_regen, NULL);
+        }
+        if (walls) {
+            walls = 0;
+            SDL_TimerID timerPet = SDL_AddTimer(20000, callback_stun, NULL);
+        }
+
+
+
 
         gf2d_sprite_draw(
         mouse,
@@ -190,9 +325,11 @@ int main(int argc, char * argv[])
         //Draw health bar
         switch (player->health) {
         case 2:
-            gf2d_draw_rect_filled(gfc_rect(140, 655, 30, 30), GFC_COLOR_RED);
-        case 1:
+
             gf2d_draw_rect_filled(gfc_rect(180, 655, 30, 30), GFC_COLOR_RED);
+        case 1:
+           
+            gf2d_draw_rect_filled(gfc_rect(140, 655, 30, 30), GFC_COLOR_RED);
             break;
         default:
             break;
@@ -251,6 +388,40 @@ int main(int argc, char * argv[])
 
         }
         //Other abilites here
+        //Simply move
+        if (gfc_input_command_pressed("teleport")) {
+            slog("Player Teleported");
+            player->position.x = player->position.x + (gfc_crandom()*200);
+            player->position.y = player->position.y + (gfc_crandom()*200);
+
+        }
+        //double size of hitbox, remove damage and kill enemies inside?
+        if (gfc_input_command_pressed("stomp")) {
+            slog("Player Stomped");
+            stompOn = 1;
+            invuln = 1;
+            SDL_TimerID timerStomp = SDL_AddTimer(1000, callback_stomp, NULL);
+
+        }
+        //Remove collision box
+        if (gfc_input_command_pressed("shield")) {
+            slog("Player Invlunerable");
+            SDL_TimerID timerShield = SDL_AddTimer(5000, callback_shield, NULL);
+            invuln = 1;
+        }
+        //Kill random enemy on the array
+        if (gfc_input_command_pressed("snap")) {
+            slog("Player Snapped");
+            for (int j = 0; j < MAX_FIGHTERS; j++) {
+                if (fighters[j] != NULL) {
+                    entity_damage(fighters[j]);
+                }
+            }
+
+
+        }
+
+        //Hazard Checking
 
 
         //The Great bullet Collide Loop 
@@ -265,11 +436,17 @@ int main(int argc, char * argv[])
 
                         if(check_collision(bullets[i], fighters[j])){
                             slog("Found Collision");
-                            fighter_free(fighters[j]);
+                            
+                            
+                            entity_damage(fighters[j]);
+                            if (!fighters[j]) {
+                                fighters[j] = NULL;
+                                currScore++;
+                            }
+                            
                             bullet_free(bullets[i]);
-                            fighters[j] = NULL;
                             bullets[i] = NULL;
-                            currScore++;
+                            
                         }
                     }
                 }

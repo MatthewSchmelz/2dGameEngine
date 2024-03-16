@@ -1,12 +1,14 @@
 #include "simple_logger.h"
+#include "world.h"
 #include "e_fighter.h"
-
 
 void fighter_think(Entity* self);
 void fighter_update(Entity* self);
 void fighter_free(Entity* self);
 void fighter_pursue(Entity* self, Entity* target);
 
+
+extern int fog;
 
 Entity* fighter_new() {
 	Entity* self;
@@ -23,7 +25,29 @@ Entity* fighter_new() {
 		0
 	); //Entity's sprite
 	self->frame = 0;
-	self->position = vector2d(0, 0); // Entity's Position
+	//Spawn at one of 3 gates, if Gates closed, spawn at the middle gate
+	if (!fog) {
+		int randomIndex = rand() % 3; // Generate a random number between 0 and 2
+
+		switch (randomIndex) {
+		case 0:
+			self->position = tile_to_position(vector2d(2, 0));
+			break;
+		case 1:
+			self->position = tile_to_position(vector2d(9, 0));
+			break;
+		case 2:
+			self->position = tile_to_position(vector2d(15, 0));
+			break;
+		default:
+			// Handle unexpected cases if any
+			break;
+		}
+	}
+	else {
+		self->position = tile_to_position(vector2d(9, 0));
+	}
+	 // Entity's Position
 
 	self->think = fighter_think;
 	self->update = fighter_update;
@@ -31,6 +55,7 @@ Entity* fighter_new() {
 	self->hitbox = gfc_circle(self->position.x, self->position.y, 400);
 	self->team = 1;
 	self->health = 1;
+	self -> pursue = fighter_pursue;
 };
 
 void fighter_think(Entity* self) {

@@ -1,5 +1,6 @@
 #include "simple_logger.h"
 #include "camera.h"
+#include "world.h"
 #include "entity.h"
 
 typedef struct
@@ -12,6 +13,8 @@ typedef struct
 static EntityManager _entity_manager = { 0 }; // Init a local global entity manager
 
 void entity_system_close();
+
+extern int spike;
 
 
 void entity_system_init(Uint32 max) {
@@ -100,6 +103,15 @@ void entity_think(Entity* self) {
 	}
 }
 
+void entity_pursue(Entity* self, Entity * target) {
+	if (!self) {
+		return;
+	}
+	if (self->pursue) {
+		self->pursue(self,target);
+	}
+}
+
 void entity_system_think() {
 	int i;
 	for (i = 0; i < _entity_manager.entity_max; i++) {
@@ -113,7 +125,40 @@ void entity_system_think() {
 void entity_update(Entity* self) {
 	if (!self) {
 		return;
+	}	
+	//All Entities need to remain within bounds, check that here
+	//If entity has an owner, it is a bullet and can fly off map
+	if (!self->owner) {
+		if (self->position.x < 32) {
+		self->position.x = 32;
+		} else if(self->position.x > 1120) {  
+			self->position.x = 1120;
+		}
+		if (self->position.y < 32) {
+			self->position.y = 32;
+		}
+		else if (self->position.y > 864) {
+			self->position.y = 864;
+		}
+
+		//
+		if (spike) {
+			Vector2D tilePos = position_to_tile(self->position);
+			//All spikes on left
+			if (((tilePos.x == 3) && (tilePos.y == 3)) || ((tilePos.x == 2) && (tilePos.y == 3)) || ((tilePos.x == 2) && (tilePos.y == 2)) || ((tilePos.x == 3) && (tilePos.y == 2))) {
+				self->damage(self);
+			}
+			//All spikes on right
+			if (((tilePos.x == 14) && (tilePos.y == 3)) || ((tilePos.x == 15) && (tilePos.y == 3)) || ((tilePos.x == 14) && (tilePos.y == 2)) || ((tilePos.x == 15) && (tilePos.y == 2))) {
+				self->damage(self);
+			}
+		}
+		
+
+
 	}
+
+
 	if (self->update) {
 		self->update(self);
 	}
@@ -131,9 +176,11 @@ void entity_damage(Entity* self) {
 	if (self->health > 0) {
 		self->health = self->health - 1;
 	}
-	else {
+	else if (self->free) {
 		self->free(self);
 	}
+
+	return;
 
 }
 

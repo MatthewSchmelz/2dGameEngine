@@ -159,13 +159,22 @@
     <ClCompile Include="..\..\gfc\src\miniz.c" />
     <ClCompile Include="..\..\src\camera.c" />
     <ClCompile Include="..\..\src\entity.c" />
+    <ClCompile Include="..\..\src\e_archmage.c" />
+    <ClCompile Include="..\..\src\e_barbarian.c" />
     <ClCompile Include="..\..\src\e_bullet.c" />
     <ClCompile Include="..\..\src\e_fighter.c" />
+    <ClCompile Include="..\..\src\e_hero.c" />
+    <ClCompile Include="..\..\src\e_ninja.c" />
+    <ClCompile Include="..\..\src\e_paladin.c" />
+    <ClCompile Include="..\..\src\e_rogue.c" />
+    <ClCompile Include="..\..\src\e_shadowmage.c" />
+    <ClCompile Include="..\..\src\e_tank.c" />
     <ClCompile Include="..\..\src\font.c" />
     <ClCompile Include="..\..\src\game.c" />
     <ClCompile Include="..\..\src\gf2d_draw.c" />
     <ClCompile Include="..\..\src\gf2d_graphics.c" />
     <ClCompile Include="..\..\src\gf2d_sprite.c" />
+    <ClCompile Include="..\..\src\e_mage.c" />
     <ClCompile Include="..\..\src\player.c" />
     <ClCompile Include="..\..\src\shop.c" />
     <ClCompile Include="..\..\src\world.c" />
@@ -199,8 +208,16 @@
     <ClInclude Include="..\..\gfc\simple_logger\include\simple_logger.h" />
     <ClInclude Include="..\..\include\camera.h" />
     <ClInclude Include="..\..\include\entity.h" />
+    <ClInclude Include="..\..\include\e_archmage.h" />
+    <ClInclude Include="..\..\include\e_barbarian.h" />
     <ClInclude Include="..\..\include\e_bullet.h" />
     <ClInclude Include="..\..\include\e_fighter.h" />
+    <ClInclude Include="..\..\include\e_hero.h" />
+    <ClInclude Include="..\..\include\e_mage.h" />
+    <ClInclude Include="..\..\include\e_ninja.h" />
+    <ClInclude Include="..\..\include\e_rogue.h" />
+    <ClInclude Include="..\..\include\e_shadowmage.h" />
+    <ClInclude Include="..\..\include\e_tank.h" />
     <ClInclude Include="..\..\include\font.h" />
     <ClInclude Include="..\..\include\gf2d_draw.h" />
     <ClInclude Include="..\..\include\gf2d_graphics.h" />
@@ -208,6 +225,7 @@
     <ClInclude Include="..\..\include\player.h" />
     <ClInclude Include="..\..\include\shop.h" />
     <ClInclude Include="..\..\include\world.h" />
+    <ClInclude Include="..\..\src\e_paladin.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
