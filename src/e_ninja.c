@@ -150,7 +150,7 @@ void ninja_draw(Entity* self) {
 		//Vector2D drawOffset;
 		//drawOffset.x = self->position.x-32;
 		//drawOffset.y = self->position.y-32;
-		Color mouseColor = gfc_color8(255, 100, 255, 255);
+		Color mouseColor = gfc_color8(255, 100, 255, 100);
 		vector2d_add(position, self->position, camOffset);
 		gf2d_sprite_render(
 			self->sprite,

@@ -15,7 +15,7 @@ static EntityManager _entity_manager = { 0 }; // Init a local global entity mana
 void entity_system_close();
 
 extern int spike;
-
+extern int currScore;
 
 void entity_system_init(Uint32 max) {
 	if (_entity_manager.entity_list) {
@@ -146,11 +146,13 @@ void entity_update(Entity* self) {
 			Vector2D tilePos = position_to_tile(self->position);
 			//All spikes on left
 			if (((tilePos.x == 3) && (tilePos.y == 3)) || ((tilePos.x == 2) && (tilePos.y == 3)) || ((tilePos.x == 2) && (tilePos.y == 2)) || ((tilePos.x == 3) && (tilePos.y == 2))) {
-				self->damage(self);
+				self->free(self);
+				//self->damage(self);
 			}
 			//All spikes on right
 			if (((tilePos.x == 14) && (tilePos.y == 3)) || ((tilePos.x == 15) && (tilePos.y == 3)) || ((tilePos.x == 14) && (tilePos.y == 2)) || ((tilePos.x == 15) && (tilePos.y == 2))) {
-				self->damage(self);
+				self->free(self);
+				//self->damage(self);
 			}
 		}
 		
@@ -175,9 +177,10 @@ void entity_damage(Entity* self) {
 
 	if (self->health > 0) {
 		self->health = self->health - 1;
-	}
-	else if (self->free) {
-		self->free(self);
+		if (self->health <= 0) {
+			self->free(self);
+			currScore++;
+		}
 	}
 
 	return;

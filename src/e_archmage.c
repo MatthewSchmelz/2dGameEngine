@@ -154,7 +154,7 @@ void archmage_draw(Entity* self) {
 		//Vector2D drawOffset;
 		//drawOffset.x = self->position.x-32;
 		//drawOffset.y = self->position.y-32;
-		Color mouseColor = gfc_color8(0, 255, 0, 255);
+		Color mouseColor = gfc_color8(100, 50, 32, 255);
 		vector2d_add(position, self->position, camOffset);
 		gf2d_sprite_render(
 			self->sprite,

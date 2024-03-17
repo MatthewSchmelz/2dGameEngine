@@ -5,16 +5,16 @@ Space to fire a magic bolt in the direction of your mouse
 L to open Shop, B to buy a shop item
 
 Enemies:
-fighter: Standard speed, 1 health, no special abilities
-mage: Standard speed, 1 health, can fire magic bolts at player
-rogue: Fast speed, 1 health, no special abilities
-tank: Slow speed, 3 health, no special abilities
-paladin:Standard speed, 3 health, regenerates health randomly
-archmage: Standard speed, 1 health, fires magic bolts faster than normal mage
-hero: Fast speed, 3 health, No special abilities
-barbarian: Variable speed, 3 health, Gets faster with less health
-ninja: Slow speed, 1 health, teleports quickly towards the player
-shadowmage: Slow speed, 1 health, teleports and can fire magic bolts
+fighter: Standard speed, 1 health, no special abilities - No color
+mage: Standard speed, 1 health, can fire magic bolts at player - Green
+rogue: Fast speed, 1 health, no special abilities - Purple
+tank: Slow speed, 3 health, no special abilities - Yellow
+paladin:Standard speed, 3 health, regenerates health randomly - Black
+archmage: Standard speed, 1 health, fires magic bolts faster than normal mage - Deep brown
+hero: Fast speed, 3 health, No special abilities - Bright purple
+barbarian: Variable speed, 3 health, Gets faster with less health - Brown
+ninja: Slow speed, 1 health, teleports quickly towards the player - Purple, Ethereal 
+shadowmage: Slow speed, 1 health, teleports and can fire magic bolts - Violet
 
 Player Abilities:
 Blast(Passive): Permenantly increases damage

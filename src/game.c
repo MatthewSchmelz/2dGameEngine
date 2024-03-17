@@ -46,11 +46,14 @@ int gas = 0, spike = 0, healing = 0, fog = 0, walls =0;
 int invuln = 0, stompOn = 0;
 
 int pet =0;
-
+int waves = 0;
 int summontype =0;
+int currScore = 0;
+int souls = 0;
 
 Uint32 callback_mob(Uint32 interval, void* param) {
     // Find an empty slot in the array
+    if (waves) {
     int emptySlot = -1;
     for (int i = 0; i < MAX_FIGHTERS; ++i) {
         if (fighters[i] == NULL) {
@@ -113,6 +116,8 @@ Uint32 callback_mob(Uint32 interval, void* param) {
         }
 
     }
+    }
+    
 
 
     return interval; // Return the interval for the timer
@@ -177,13 +182,13 @@ int main(int argc, char * argv[])
     const Uint8 * keys;
     //Sprite *sprite;
     World* world;
-    int souls = 0;
+
     int bshop = 0;
     int mx,my;
     float mf = 0;
     Sprite *mouse;
     int highscore;
-    int currScore =0;
+    
     Color mouseColor = gfc_color8(255,100,255,200);
     
 
@@ -419,6 +424,10 @@ int main(int argc, char * argv[])
             }
 
 
+        }
+
+        if (gfc_input_command_pressed("start")) {
+            waves = 1;
         }
 
         //Hazard Checking

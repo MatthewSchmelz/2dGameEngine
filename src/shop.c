@@ -10,7 +10,7 @@
 
 //We have 1200 Width and 720 height
 
-extern int blast,teleport,stomp,shield,snap,gas,spike,healing,fog, walls;
+extern int blast,teleport,stomp,shield,snap,gas,spike,healing,fog, walls,souls;
 
 void shop() {
 	//Grab the mouse stte
@@ -32,6 +32,7 @@ void shop() {
 		if (gfc_input_command_pressed("buy")) {
 			slog("Ability purchased");
 			blast = 1;
+			souls = souls - 5;
 		}
 	}
 	else {
@@ -44,6 +45,7 @@ void shop() {
 		if (gfc_input_command_pressed("buy")) {
 			slog("Ability purchased");
 			teleport = 1;
+			souls = souls - 5;
 		}
 	}
 	else {
@@ -56,6 +58,7 @@ void shop() {
 		if (gfc_input_command_pressed("buy")) {
 			slog("Ability purchased");
 			stomp = 1;
+			souls = souls - 5;
 		}
 	}
 	else {
@@ -68,6 +71,7 @@ void shop() {
 		if (gfc_input_command_pressed("buy")) {
 			slog("Ability purchased");
 			shield = 1;
+			souls = souls - 5;
 		}
 	}
 	else {
@@ -80,6 +84,7 @@ void shop() {
 		if (gfc_input_command_pressed("buy")) {
 			slog("Ability purchased");
 			snap = 1;
+			souls = souls - 5;
 		}
 	}
 	else {
@@ -95,6 +100,7 @@ void shop() {
 		if (gfc_input_command_pressed("buy")) {
 			slog("Ability purchased");
 			gas = 1;
+			souls = souls - 5;
 		}
 	}
 	else {
@@ -107,6 +113,7 @@ void shop() {
 		if (gfc_input_command_pressed("buy")) {
 			slog("Ability purchased");
 			spike = 1;
+			souls = souls - 5;
 		}
 	}
 	else {
@@ -118,6 +125,7 @@ void shop() {
 		gf2d_draw_rect_filled(gfc_rect(740, 260, 240, 90), GFC_COLOR_RED);
 		if (gfc_input_command_pressed("buy")) {
 			slog("Ability purchased");
+			souls = souls - 5;
 			healing = 1;
 		}
 	}
@@ -130,6 +138,7 @@ void shop() {
 		gf2d_draw_rect_filled(gfc_rect(740, 360, 240, 90), GFC_COLOR_RED);
 		if (gfc_input_command_pressed("buy")) {
 			slog("Ability purchased");
+			souls = souls - 5;
 			fog = 1;
 		}
 	}
@@ -142,6 +151,7 @@ void shop() {
 		gf2d_draw_rect_filled(gfc_rect(740, 460, 240, 90), GFC_COLOR_RED);
 		if (gfc_input_command_pressed("buy")) {
 			slog("Ability purchased");
+			souls = souls - 5;
 			walls = 1;
 		}
 	}
