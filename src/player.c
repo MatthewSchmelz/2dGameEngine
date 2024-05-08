@@ -7,9 +7,9 @@ void player_think(Entity *self);
 void player_update(Entity* self);
 void player_free(Entity* self);
 void player_damage(Entity* self);
+void player_draw(Entity* self);
 
-
-extern int invuln, stompOn;
+extern int invuln, stompOn, menu;
 
 Entity *player_new() {
 	Entity* self;
@@ -18,11 +18,19 @@ Entity *player_new() {
 		slog("failed to spawn a player");
 		return NULL;
 	}
-	self->sprite = gf2d_sprite_load_all(
+	/*self->sprite = gf2d_sprite_load_all(
 		"images/ed210.png",
 		128,
 		128,
 		15,
+		0
+	); //Entity's sprite
+	*/
+	self->sprite = gf2d_sprite_load_all(
+		"images/wizardwalk.png",
+		32,
+		32,
+		8,
 		0
 	); //Entity's sprite
 	self->frame =0;
@@ -35,6 +43,7 @@ Entity *player_new() {
 	self->hitbox = gfc_circle(self->position.x+64, self->position.y+64, 10);
 	self->team = 0;
 	self->health = 2;
+	self->draw = player_draw;
 };
 
 void player_think(Entity* self) {
@@ -66,7 +75,7 @@ void player_think(Entity* self) {
 void player_update(Entity* self) {
 	if (!self) return;
 	self->frame += 0.1;
-	if (self->frame >= 16) self->frame = 0;
+	if (self->frame >= 8) self->frame = 0;
 	vector2d_add(self->position, self->position, self->velocity);
 	//Update the hitbox
 	if (stompOn) {
@@ -96,10 +105,37 @@ void player_damage(Entity* self) {
 	}
 	else {
 		slog("Player Took Lethal Hit.");
+		menu = 0;
 	}
 }
 
-
+void player_draw(Entity* self) {
+	Vector2D camOffset, position, scale;
+	if (!self) {
+		return;
+	}
+	camOffset = camera_get_offset();
+	if (self->sprite) {
+		//Create a draw offset
+		//Vector2D drawOffset;
+		//drawOffset.x = self->position.x-32;
+		//drawOffset.y = self->position.y-32;
+		scale.y = 1.5;
+		scale.x = 1.5;
+		vector2d_add(position, self->position, camOffset);
+		gf2d_sprite_render(
+			self->sprite,
+			position,
+			&scale,
+			NULL,
+			NULL,
+			NULL,
+			NULL,
+			NULL,
+			(Uint32)self->frame
+		);
+	}
+};
 
 
 

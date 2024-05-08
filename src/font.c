@@ -120,9 +120,12 @@ FontCache* font_get_recent(const char* text, FontStyles style, Color color) {
 void font_cache_free(FontCache* cache) {
 	if (!cache)return;
 
+
 	if(cache->text)free(cache->text);
 	if(cache->texture)SDL_DestroyTexture(cache->texture);
 	free(cache);
+
+
 
 }
 

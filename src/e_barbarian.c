@@ -19,11 +19,19 @@ Entity* barbarian_new() {
 		slog("failed to spawn a player");
 		return NULL;
 	}
-	self->sprite = gf2d_sprite_load_all(
+	/*self->sprite = gf2d_sprite_load_all(
 		"images/ed210.png",
 		128,
 		128,
 		15,
+		0
+	); //Entity's sprite
+	*/
+	self->sprite = gf2d_sprite_load_all(
+		"images/mobwalk.png",
+		120,
+		80,
+		10,
 		0
 	); //Entity's sprite
 	self->frame = 0;
@@ -50,13 +58,52 @@ Entity* barbarian_new() {
 		self->position = tile_to_position(vector2d(9, 0));
 	}
 	// Entity's Position
+	SJson* json = NULL;
+	SJson* wjson = NULL;
+	json = sj_load("config/enemies.json");
+	if (!json) {
+		slog("failed to load enemies json");
+		return NULL;
+	}
+
+	wjson = sj_object_get_value(json, "barbarian");
+	if (!wjson) {
+		slog("Missing barbarian object in enemies json");
+		sj_free(json);
+		return NULL;
+	}
+
+	float health;
+	if (!sj_object_get_value_as_float(wjson, "health", &health)) {
+		slog("barbarian's health not initialized correctly.");
+	}
+	else {
+		printf("barbarian's health: %.2f\n", health);
+	}
+
+	self->health = health;
+
+	wjson = sj_object_get_value(json, "barbarian");
+	if (!wjson) {
+		slog("Missing barbarian object in enemies json");
+		sj_free(json);
+		return NULL;
+	}
+
+	float speed;
+	if (!sj_object_get_value_as_float(wjson, "speed", &speed)) {
+		slog("barbarian's health not initialized correctly.");
+	}
+	else {
+		printf("barbarian's speed: %.2f\n", speed);
+	}
+	self->speed = speed;
 
 	self->think = barbarian_think;
 	self->update = barbarian_update;
 	self->free = barbarian_free;
 	self->hitbox = gfc_circle(self->position.x, self->position.y, 400);
 	self->team = 1;
-	self->health = 3;
 	self->pursue = barbarian_pursue;
 	self->draw = barbarian_draw;
 };
@@ -79,7 +126,7 @@ void barbarian_think(Entity* self) {
 void barbarian_update(Entity* self) {
 	if (!self) return;
 	self->frame += 0.1;
-	if (self->frame >= 16) self->frame = 0;
+	if (self->frame >= 10) self->frame = 0;
 	vector2d_add(self->position, self->position, self->velocity);
 	self->hitbox = gfc_circle(self->position.x + 64, self->position.y + 64, 50);
 };
@@ -92,7 +139,7 @@ void barbarian_pursue(Entity* self, Entity* target) {
 	Vector2D dir = { 0 };
 	Sint32 mx = 0, my = 0;
 	if (!target || !self) {
-		slog("Missing Enities for fighter_pursue");
+		slog("Missing Enities for barbarian_pursue");
 		return;
 	}
 	Vector2D loc = target->position;
@@ -119,28 +166,28 @@ void barbarian_pursue(Entity* self, Entity* target) {
 	
 	switch (self->health) {
 		case 1:
-		if (self->position.x < loc.x) dir.x = 4;
-		if (self->position.y < loc.y) dir.y = 4;
-		if (self->position.x > loc.x) dir.x = -4;
-		if (self->position.y > loc.y) dir.y = -4;
+		if (self->position.x < loc.x) dir.x = 4 * self->speed;
+		if (self->position.y < loc.y) dir.y = 4 * self->speed;
+		if (self->position.x > loc.x) dir.x = -4 * self->speed;
+		if (self->position.y > loc.y) dir.y = -4 * self->speed;
 		vector2d_normalize(&dir);
-		vector2d_scale(self->velocity, dir, 2);
+		vector2d_scale(self->velocity, dir, 2 * self->speed);
 		break;
 		case 2:
-		if (self->position.x < loc.x) dir.x = 2;
-		if (self->position.y < loc.y) dir.y = 2;
-		if (self->position.x > loc.x) dir.x = -2;
-		if (self->position.y > loc.y) dir.y = -2;
+		if (self->position.x < loc.x) dir.x = 2 * self->speed;
+		if (self->position.y < loc.y) dir.y = 2 * self->speed;
+		if (self->position.x > loc.x) dir.x = -2 * self->speed;
+		if (self->position.y > loc.y) dir.y = -2 * self->speed;
 		vector2d_normalize(&dir);
-		vector2d_scale(self->velocity, dir, 1);
+		vector2d_scale(self->velocity, dir, 1 * self->speed);
 		break;
 		case 3:
-			if (self->position.x < loc.x) dir.x = 0.5;
-		if (self->position.y < loc.y) dir.y = 0.5;
-		if (self->position.x > loc.x) dir.x = -0.5;
-		if (self->position.y > loc.y) dir.y = -0.5;
+			if (self->position.x < loc.x) dir.x = 0.5 * self->speed;
+		if (self->position.y < loc.y) dir.y = 0.5 * self->speed;
+		if (self->position.x > loc.x) dir.x = -0.5 * self->speed;
+		if (self->position.y > loc.y) dir.y = -0.5 * self->speed;
 		vector2d_normalize(&dir);
-		vector2d_scale(self->velocity, dir, 0.5);
+		vector2d_scale(self->velocity, dir, 0.5 * self->speed);
 		break;
 		default:
 		slog("Health confused for barbarian.");

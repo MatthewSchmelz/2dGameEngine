@@ -4,13 +4,15 @@
 
 #include "gf2d_graphics.h"
 #include "gf2d_sprite.h"
-
+#include "gfc_audio.h"
 #include "gf2d_draw.h"
 
 #include "camera.h"
 #include "font.h"
 #include "entity.h"
 #include "player.h"
+#include "player2.h"
+#include "e_companion.h"
 #include "world.h"
 #include "e_fighter.h"
 #include "e_mage.h"
@@ -22,12 +24,17 @@
 #include "e_barbarian.h"
 #include "e_ninja.h"
 #include "e_shadowmage.h"
+#include "e_boss.h"
 #include "e_bullet.h"
 #include "shop.h"
+#include "editor.h"
+
+extern int __DEBUG;
 
 
 Entity* player = NULL;
 Entity* fighter = NULL;
+Entity* companion = NULL;
 Vector2D mLoc;
 
 
@@ -37,6 +44,8 @@ Entity* fighters[MAX_FIGHTERS] = { NULL }; // Array to store pointers to fighter
 #define MAX_BULLETS 1000 // Adjust the maximum number of fighters as needed
 Entity* bullets[MAX_BULLETS] = { NULL }; // Array to store pointers to fighters
 
+World* world;
+int map = 0;
 
 //Player Abilities Owned bool
 int blast = 0, teleport = 0, stomp = 0, shield = 0, snap = 0;
@@ -50,6 +59,29 @@ int waves = 0;
 int summontype =0;
 int currScore = 0;
 int souls = 0;
+int menu = 0;
+int unlock = 0;
+int select = 0;
+int character = 0;
+
+//boss timer
+int boss = 0;
+int bossinvuln = 0;
+
+SDL_TimerID timerBoss;
+
+Uint32 callback_boss(Uint32 interval, void* param) {
+    slog("Changing Boss State");
+    if (bossinvuln == 0) {
+        slog("boss now vulnurable");
+        bossinvuln = 1;
+    }
+    else {
+        slog("boss now invulnurable");
+        bossinvuln = 0;
+    }
+    return  interval;
+}
 
 Uint32 callback_mob(Uint32 interval, void* param) {
     // Find an empty slot in the array
@@ -65,55 +97,68 @@ Uint32 callback_mob(Uint32 interval, void* param) {
     // Create a new fighter if there's an empty slot
     if (emptySlot != -1) {
         //Random spawn in fighters
-        switch (summontype) {
-        case 0:
-            fighters[emptySlot] = fighter_new();
-            summontype++;
-            break;
-        case 1:
-            fighters[emptySlot] = mage_new();
-            summontype++;
-            break;
-        case 2:
-            fighters[emptySlot] = rogue_new();
-            summontype++;
-            break;
-        case 3:
-            fighters[emptySlot] = tank_new();
-            summontype++;
-            break;
-        case 4:
-            fighters[emptySlot] = paladin_new();
-            summontype++;
-            break;
-        case 5:
-            fighters[emptySlot] = archmage_new();
-            summontype++;
-            break;
-        case 6:
-            fighters[emptySlot] = hero_new();
-            summontype++;
-            break;
-        case 7:
-            fighters[emptySlot] = barbarian_new();
-            summontype++;
-            break;
-        case 8:
-            fighters[emptySlot] = ninja_new();
-            summontype++;
-            break;
-        case 9:
-            fighters[emptySlot] = shadowmage_new();
-            summontype++;
-            break;
-        case 10:
-            summontype = 0;
-            break;
-        default:
-            summontype = 0;
-            break;
-
+        if (boss) {
+            return interval;
         }
+            switch (summontype) {
+            case 0:
+                
+                 fighters[emptySlot] = fighter_new();
+                summontype++;
+                break;
+            case 1:
+                fighters[emptySlot] = mage_new();
+                summontype++;
+                break;
+            case 2:
+                fighters[emptySlot] = rogue_new();
+                summontype++;
+                break;
+            case 3:
+                fighters[emptySlot] = tank_new();
+                summontype++;
+                break;
+            case 4:
+                fighters[emptySlot] = paladin_new();
+                summontype++;
+                break;
+            case 5:
+                fighters[emptySlot] = archmage_new();
+                summontype++;
+                break;
+            case 6:
+                fighters[emptySlot] = hero_new();
+                summontype++;
+                break;
+            case 7:
+                fighters[emptySlot] = barbarian_new();
+                summontype++;
+                break;
+            case 8:
+                fighters[emptySlot] = ninja_new();
+                summontype++;
+                break;
+            case 9:
+                fighters[emptySlot] = shadowmage_new();
+                summontype++;
+                break;
+            case 10:
+                fighters[emptySlot] = boss_new();
+                boss = 1;
+                summontype = 0;
+                timerBoss = SDL_AddTimer(5000, callback_boss, NULL);
+                //Changemap here
+                world = world_load("maps/glacier.json");
+                map = 2;
+                break;
+            
+            default:
+                summontype = 0;
+                break;
+
+            }
+
+        
 
     }
     }
@@ -122,6 +167,9 @@ Uint32 callback_mob(Uint32 interval, void* param) {
 
     return interval; // Return the interval for the timer
 }
+
+
+
 
 //Callsback the shield function to make the player stop being immune
 Uint32 callback_shield(Uint32 interval, void* param) {
@@ -180,23 +228,62 @@ int main(int argc, char * argv[])
     /*variable declarations*/
     int done = 0;
     const Uint8 * keys;
-    //Sprite *sprite;
-    World* world;
-
+    Sprite *sprite;
+   
+ 
     int bshop = 0;
     int mx,my;
     float mf = 0;
     Sprite *mouse;
     int highscore;
-    
+    int target = 0;
     Color mouseColor = gfc_color8(255,100,255,200);
     
+
+
+
+
+
+
+    //Setting up sounds/music
+    Mix_Music* music;
+
+    Sound* bullete;
+    gfc_audio_init(3, 2, 1, 1, true, true);
+    //Initalizing the music, a pointer to where the music is located
+    //music = gfc_sound_load_music("audio/music.mp3");
+    //play the music
+    //gfc_sound_play(&music, -1, 1.0, 1, 1);
+    music = Mix_LoadMUS("audio/boss.WAV");
+    if (!music) {
+        printf("Mix_LoadMUS(\"boss.mp3\"): %s\n", Mix_GetError());
+        // this might be a critical error...
+    }
+
+
+    // play music forever
+    // Mix_Music *music; // I assume this has been loaded already
+    if (Mix_PlayMusic(music, -1) == -1) {
+        printf("Mix_PlayMusic: %s\n", Mix_GetError());
+        // well, there's no music, but most games don't break without music...
+    }
+
+    bullete = gfc_sound_load("audio/bullet.mp3",1.0, 1);
+
+
+
 
     //Yoink the highscore from the json file
     SJson* json, * config;
     json = sj_load("config/stats.json");
     if (!sj_object_get_value_as_int(json, "highscore", &highscore)) {
         slog("Cannot find highscore");
+    }
+    if (!sj_object_get_value_as_int(json, "souls", &souls)) {
+        slog("Cannot find currency");
+    }
+    if (!sj_object_get_value_as_int(json, "unlock", &unlock)) {
+        slog("Cannot find currency");
     }
 
 
@@ -226,14 +313,19 @@ int main(int argc, char * argv[])
     SDL_TimerID timerTime = SDL_AddTimer(2000, callback_mob, NULL);
     
     /*demo setup*/
-    //sprite = gf2d_sprite_load_image("images/backgrounds/bg_flat.png");
+    sprite = gf2d_sprite_load_image("images/backgrounds/boss_flat.png");
     world = world_load("maps/dungeon.json");
     world_setup_camera(world);
     mouse = gf2d_sprite_load_all("images/pointer.png",32,32,16,0);
-    player = player_new();
+    player = NULL;
+    companion = companion_new();
     /*main game loop*/
     while(!done)
     {
+
+
+
+
         gfc_input_update();
         SDL_PumpEvents();   // update SDL's internal event structures
         keys = SDL_GetKeyboardState(NULL); // get the keyboard state for this frame
@@ -251,6 +343,7 @@ int main(int argc, char * argv[])
         entity_system_think();
         entity_system_update();
 
+        
         //Implement the perfifying
         if (!pet) {
             for (int i = 0; i < MAX_FIGHTERS; ++i) {
@@ -272,17 +365,87 @@ int main(int argc, char * argv[])
 
         }
         
-    
+        gf2d_graphics_clear_screen();
+        world_draw(world);
+            
+        entity_system_draw(); 
+        gf2d_sprite_draw(
+        mouse,
+        vector2d(mx,my),
+        NULL,
+        NULL,
+        NULL,
+        NULL,
+        &mouseColor,
+        (int)mf);    
+
+
+        if(!menu) {
+            pet = 0;
+            waves = 0;
+            summontype = 0;
+            currScore = 0;
+            menu = 0;
+            
+            if (!select) {
+                gf2d_sprite_draw_image(sprite, vector2d(0, 0));
+                font_draw_test("Boss Fight", FS_large, GFC_COLOR_WHITE, vector2d(400, 250));
+                if (keys[SDL_SCANCODE_SPACE]) {
+                    select = 1;
+                    music = Mix_LoadMUS("audio/boss.mp3");
+                    slog("To the selection screen");
+                }
+                if (keys[SDL_SCANCODE_B]) {
+                    slog("Debug Content Editor");
+                    begin_edit();
+
+                } 
+            }
+            else {
+                gf2d_draw_rect_filled(gfc_rect(0, 0, 2000, 2000), GFC_COLOR_BLACK);
+                font_draw_test("Corrupted Wizard", FS_large, GFC_COLOR_WHITE, vector2d(400, 150));
+                font_draw_test("Death Knight", FS_large, GFC_COLOR_WHITE, vector2d(400, 250));
+                if (keys[SDL_SCANCODE_1]) {
+                    player = player_new();
+                    menu = 1;
+                    character = 1;
+                }
+                if (keys[SDL_SCANCODE_2]) {
+                    //replace with different character
+                    if (unlock ==1) {
+                        player = player2_new();
+                        menu = 1;
+                        character = 2;
+                    }
+                    
+                }
+            }
+     
+          
+            
+           
+            //Game hasn't started
+            gf2d_graphics_next_frame();
+
+            
+           
+            continue;
+        }
+        
+
+
+        
 
 
 
-        gf2d_graphics_clear_screen();// clears drawing buffers
+        // clears drawing buffers
         // all drawing should happen betweem clear_screen and next_frame
         //backgrounds drawn first
         //gf2d_sprite_draw_image(sprite,vector2d(0,0));
-        world_draw(world);
-            
-        entity_system_draw();
+      
+
+       
+
 
 
 
@@ -307,15 +470,6 @@ int main(int argc, char * argv[])
 
 
 
-        gf2d_sprite_draw(
-        mouse,
-        vector2d(mx,my),
-        NULL,
-        NULL,
-        NULL,
-        NULL,
-        &mouseColor,
-        (int)mf);
 
 
 
@@ -356,12 +510,18 @@ int main(int argc, char * argv[])
         char curString[50];
         sprintf(curString, "%d", currScore);
         font_draw_test(curString, FS_small, GFC_COLOR_WHITE, vector2d(960, 650));
-
+        //New Character unlocked Notification
+        if (currScore > 5 && unlock == 0) {
+            font_draw_test("New Character Unlocked!", FS_small, GFC_COLOR_WHITE, vector2d(420, 150));
+            
+        }
+        
       
 
         //Shop Init
         if (gfc_input_command_pressed("shop")) {
             //Swap shop boolean
+            slog("shop activated");
             switch (bshop) {
             case 0:
                 bshop = 1;
@@ -373,23 +533,35 @@ int main(int argc, char * argv[])
         }
         //Bullet Firing
         if (gfc_input_command_pressed("fire")){
-            
-            int emptySlot = -1;
-            for (int i = 0; i < MAX_BULLETS; ++i) {
-                if (bullets[i] == NULL) {
-                    emptySlot = i;
-                    break;
+            gfc_sound_play(bullete, 0, 1.0,1, -1);
+            if (character == 1) {
+                int emptySlot = -1;
+                for (int i = 0; i < MAX_BULLETS; ++i) {
+                    if (bullets[i] == NULL) {
+                        emptySlot = i;
+                        break;
+                    }
                 }
-            }
 
-            // Create a new fighter if there's an empty slot
-            if (emptySlot != -1) {
+                // Create a new fighter if there's an empty slot
+                if (emptySlot != -1) {
                 
-                bullets[emptySlot] = bullet_new(player, mLoc);
+                    bullets[emptySlot] = bullet_new(player, mLoc);
+                }
+                else {
+                    slog("Bullet Array Full!");
+                }
+                }
+            else if(character ==2) {
+                slog("Player Melee'd");
+                stompOn = 1;
+                invuln = 1;
+                SDL_TimerID timerStomp = SDL_AddTimer(1000, callback_stomp, NULL);
             }
             else {
-                slog("Bullet Array Full!");
+                slog("How did you get here?");
             }
+            
 
         }
         //Other abilites here
@@ -430,10 +602,22 @@ int main(int argc, char * argv[])
             waves = 1;
         }
 
-        //Hazard Checking
+        
 
+        target = 0;
+        for (int j = 0; j < MAX_FIGHTERS; j++) {
+            if (fighters[j] != NULL) {
+                companion_pursue(companion,fighters[j]);
+                target = 1;
+            }
+            
+        }   
+        //No target this go around, head to the player.
+        if (target == 0){
+            companion_pursue(companion, player);
+        }
 
-        //The Great bullet Collide Loop 
+       
    
 
       
@@ -450,14 +634,18 @@ int main(int argc, char * argv[])
                             entity_damage(fighters[j]);
                             if (!fighters[j]) {
                                 fighters[j] = NULL;
-                                currScore++;
+                                
+                                
                             }
                             else {
                                 if (blast == 1) {
                                     entity_damage(fighters[j]);
                                     if (!fighters[j]) {
                                         fighters[j] = NULL;
+                                        /* souls++;
                                         currScore++;
+                                        */
+                                       
                                     }
                                 }
                             }
@@ -504,6 +692,17 @@ int main(int argc, char * argv[])
     sj_object_insert(locations, "highscore", temp);
 
     sj_save(locations, "config/stats.json");
+    //Save current amount of souls
+    temp = sj_new_int(souls);
+    sj_object_insert(locations, "souls", temp);
+
+    sj_save(locations, "config/stats.json");
+    if (currScore >5 || unlock == 1) {
+        temp = sj_new_int(1);
+        sj_object_insert(locations, "unlock", temp);
+
+        sj_save(locations, "config/stats.json");
+    }
 
 
 

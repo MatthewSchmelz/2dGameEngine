@@ -29,6 +29,7 @@ struct Entity_S {
 	Circle hitbox; //gives us a simple area for where the hitbox of the entity is and saves me math
 	int team; //0 for player 1 for enemies.
 	int health;
+	float speed;
 };
 
 /*

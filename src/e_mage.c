@@ -22,11 +22,19 @@ Entity* mage_new() {
 		slog("failed to spawn a player");
 		return NULL;
 	}
-	self->sprite = gf2d_sprite_load_all(
+	/*self->sprite = gf2d_sprite_load_all(
 		"images/ed210.png",
 		128,
 		128,
 		15,
+		0
+	); //Entity's sprite
+	*/
+	self->sprite = gf2d_sprite_load_all(
+		"images/mobwalk.png",
+		120,
+		80,
+		10,
 		0
 	); //Entity's sprite
 	self->frame = 0;
@@ -82,7 +90,7 @@ void mage_think(Entity* self) {
 void mage_update(Entity* self) {
 	if (!self) return;
 	self->frame += 0.1;
-	if (self->frame >= 16) self->frame = 0;
+	if (self->frame >= 10) self->frame = 0;
 	vector2d_add(self->position, self->position, self->velocity);
 	self->hitbox = gfc_circle(self->position.x + 64, self->position.y + 64, 50);
 };

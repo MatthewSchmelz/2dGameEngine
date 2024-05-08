@@ -14,8 +14,8 @@ static EntityManager _entity_manager = { 0 }; // Init a local global entity mana
 
 void entity_system_close();
 
-extern int spike;
-extern int currScore;
+extern int spike,map;
+extern int currScore, souls;
 
 void entity_system_init(Uint32 max) {
 	if (_entity_manager.entity_list) {
@@ -145,6 +145,7 @@ void entity_update(Entity* self) {
 		if (spike) {
 			Vector2D tilePos = position_to_tile(self->position);
 			//All spikes on left
+			if (map == 0) {
 			if (((tilePos.x == 3) && (tilePos.y == 3)) || ((tilePos.x == 2) && (tilePos.y == 3)) || ((tilePos.x == 2) && (tilePos.y == 2)) || ((tilePos.x == 3) && (tilePos.y == 2))) {
 				self->free(self);
 				//self->damage(self);
@@ -154,6 +155,15 @@ void entity_update(Entity* self) {
 				self->free(self);
 				//self->damage(self);
 			}
+			} else if(map == 1) {
+				if ((tilePos.x >= 9 && tilePos.x <= 10)) {
+					//Right range for mid spikes, check if its below y =2
+					if (tilePos.y <= 3) {
+						self->free(self);
+					}
+				}
+			}
+			
 		}
 		
 
@@ -180,6 +190,7 @@ void entity_damage(Entity* self) {
 		if (self->health <= 0) {
 			self->free(self);
 			currScore++;
+			souls++;
 		}
 	}
 
@@ -199,7 +210,7 @@ void entity_system_update() {
 
 
 void entity_draw(Entity* self) {
-	Vector2D camOffset,position;
+	Vector2D camOffset,position,scale;
 	if (!self) {
 		return;
 	}
@@ -213,11 +224,13 @@ void entity_draw(Entity* self) {
 		//Vector2D drawOffset;
 		//drawOffset.x = self->position.x-32;
 		//drawOffset.y = self->position.y-32;
+		scale.y = 1.2;
+		scale.x = 1.2;
 		vector2d_add(position,self->position,camOffset);
 		gf2d_sprite_render(
 			self->sprite,
 			position,
-			NULL,
+			&scale,
 			NULL,
 			NULL,
 			NULL,

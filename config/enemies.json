@@ -1,0 +1,14 @@
+{"fighter":{"health":2.000000,"speed":3.000000
+    ,"damage":1.000000},"mage":{"health":1,"damage":1,"speed":1
+    },"ninja":{"health":1,"damage":1,"speed":0.3
+    },"rogue":{"health":1,"damage":1,"speed":1.5
+    },"paladin":{"health":3,"damage":1,"speed":1
+    },"shadowmage":{"health":1,"damage":1,"speed":0.3
+    },"tank":{"health":3,"damage":1,"speed":0.5
+    },"barbarian":{"damage":1,"speed":1
+    ,"health":50.000000},"archmage":{"health":2,"damage":1,"speed":1
+    },"hero":{"health":3,"damage":1,"speed":1.5
+    },"companion":{"health":100,"damage":1,"speed":1
+    },"boss":{"health":3,"damage":1,"speed":1.2
+
+    }}

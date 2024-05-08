@@ -19,11 +19,19 @@ Entity* ninja_new() {
 		slog("failed to spawn a player");
 		return NULL;
 	}
-	self->sprite = gf2d_sprite_load_all(
+	/*self->sprite = gf2d_sprite_load_all(
 		"images/ed210.png",
 		128,
 		128,
 		15,
+		0
+	); //Entity's sprite
+	*/
+	self->sprite = gf2d_sprite_load_all(
+		"images/mobwalk.png",
+		120,
+		80,
+		10,
 		0
 	); //Entity's sprite
 	self->frame = 0;
@@ -50,13 +58,52 @@ Entity* ninja_new() {
 		self->position = tile_to_position(vector2d(9, 0));
 	}
 	// Entity's Position
+	SJson* json = NULL;
+	SJson* wjson = NULL;
+	json = sj_load("config/enemies.json");
+	if (!json) {
+		slog("failed to load enemies json");
+		return NULL;
+	}
+
+	wjson = sj_object_get_value(json, "ninja");
+	if (!wjson) {
+		slog("Missing ninja object in enemies json");
+		sj_free(json);
+		return NULL;
+	}
+
+	float health;
+	if (!sj_object_get_value_as_float(wjson, "health", &health)) {
+		slog("ninja's health not initialized correctly.");
+	}
+	else {
+		printf("ninja's health: %.2f\n", health);
+	}
+
+	self->health = health;
+
+	wjson = sj_object_get_value(json, "ninja");
+	if (!wjson) {
+		slog("Missing ninja object in enemies json");
+		sj_free(json);
+		return NULL;
+	}
+
+	float speed;
+	if (!sj_object_get_value_as_float(wjson, "speed", &speed)) {
+		slog("ninja's health not initialized correctly.");
+	}
+	else {
+		printf("ninja's speed: %.2f\n", speed);
+	}
+	self->speed = speed;
 
 	self->think = ninja_think;
 	self->update = ninja_update;
 	self->free = ninja_free;
 	self->hitbox = gfc_circle(self->position.x, self->position.y, 400);
 	self->team = 1;
-	self->health = 1;
 	self->pursue = ninja_pursue;
 	self->draw = ninja_draw;
 };
@@ -79,7 +126,7 @@ void ninja_think(Entity* self) {
 void ninja_update(Entity* self) {
 	if (!self) return;
 	self->frame += 0.1;
-	if (self->frame >= 16) self->frame = 0;
+	if (self->frame >= 10) self->frame = 0;
 	vector2d_add(self->position, self->position, self->velocity);
 	self->hitbox = gfc_circle(self->position.x + 64, self->position.y + 64, 50);
 };
@@ -92,7 +139,7 @@ void ninja_pursue(Entity* self, Entity* target) {
 	Vector2D dir = { 0 };
 	Sint32 mx = 0, my = 0;
 	if (!target || !self) {
-		slog("Missing Enities for fighter_pursue");
+		slog("Missing Enities for ninja_pursue");
 		return;
 	}
 	Vector2D loc = target->position;
@@ -126,12 +173,12 @@ void ninja_pursue(Entity* self, Entity* target) {
 	
 
 
-	if (self->position.x < loc.x) dir.x = .3;
-	if (self->position.y < loc.y) dir.y = .3;
-	if (self->position.x > loc.x) dir.x = -.3;
-	if (self->position.y > loc.y) dir.y = -.3;
+	if (self->position.x < loc.x) dir.x = self->speed;
+	if (self->position.y < loc.y) dir.y = self->speed;
+	if (self->position.x > loc.x) dir.x = -self->speed;
+	if (self->position.y > loc.y) dir.y = -self->speed;
 	vector2d_normalize(&dir);
-	vector2d_scale(self->velocity, dir, 1.5);
+	vector2d_scale(self->velocity, dir, self->speed);
 
 };
 

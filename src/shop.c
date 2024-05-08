@@ -29,7 +29,7 @@ void shop() {
 
 	if (mx > 40 && mx < 250 && my > 60 && my < 100) {
 		gf2d_draw_rect_filled(gfc_rect(40, 60, 240, 90), GFC_COLOR_RED);
-		if (gfc_input_command_pressed("buy")) {
+		if (gfc_input_command_pressed("buy") && souls >=5) {
 			slog("Ability purchased");
 			blast = 1;
 			souls = souls - 5;
@@ -42,7 +42,7 @@ void shop() {
 
 	if (mx > 40 && mx < 250 && my > 160 && my < 250) {
 		gf2d_draw_rect_filled(gfc_rect(40, 160, 240, 90), GFC_COLOR_RED);
-		if (gfc_input_command_pressed("buy")) {
+		if (gfc_input_command_pressed("buy") && souls >= 5) {
 			slog("Ability purchased");
 			teleport = 1;
 			souls = souls - 5;
@@ -55,7 +55,7 @@ void shop() {
 
 	if (mx > 40 && mx < 250 && my > 260 && my < 350) {
 		gf2d_draw_rect_filled(gfc_rect(40, 260, 240, 90), GFC_COLOR_RED);
-		if (gfc_input_command_pressed("buy")) {
+		if (gfc_input_command_pressed("buy") && souls >= 5) {
 			slog("Ability purchased");
 			stomp = 1;
 			souls = souls - 5;
@@ -68,7 +68,7 @@ void shop() {
 
 	if (mx > 40 && mx < 250 && my > 360 && my < 450) {
 		gf2d_draw_rect_filled(gfc_rect(40, 360, 240, 90), GFC_COLOR_RED);
-		if (gfc_input_command_pressed("buy")) {
+		if (gfc_input_command_pressed("buy") && souls >= 5) {
 			slog("Ability purchased");
 			shield = 1;
 			souls = souls - 5;
@@ -81,7 +81,7 @@ void shop() {
 
 	if (mx > 40 && mx < 250 && my > 460 && my < 550) {
 		gf2d_draw_rect_filled(gfc_rect(40, 460, 240, 90), GFC_COLOR_RED);
-		if (gfc_input_command_pressed("buy")) {
+		if (gfc_input_command_pressed("buy") && souls >= 5) {
 			slog("Ability purchased");
 			snap = 1;
 			souls = souls - 5;
@@ -97,7 +97,7 @@ void shop() {
 
 	if (mx > 740 && mx < 950 && my > 60 && my < 100) {
 		gf2d_draw_rect_filled(gfc_rect(740, 60, 240, 90), GFC_COLOR_RED);
-		if (gfc_input_command_pressed("buy")) {
+		if (gfc_input_command_pressed("buy") && souls >= 5) {
 			slog("Ability purchased");
 			gas = 1;
 			souls = souls - 5;

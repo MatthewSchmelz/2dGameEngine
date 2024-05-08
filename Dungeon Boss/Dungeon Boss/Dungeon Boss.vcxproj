@@ -157,7 +157,9 @@
     <ClCompile Include="..\..\gfc\src\gfc_types.c" />
     <ClCompile Include="..\..\gfc\src\gfc_vector.c" />
     <ClCompile Include="..\..\gfc\src\miniz.c" />
+    <ClCompile Include="..\..\src\e_boss.c" />
     <ClCompile Include="..\..\src\camera.c" />
+    <ClCompile Include="..\..\src\editor.c" />
     <ClCompile Include="..\..\src\entity.c" />
     <ClCompile Include="..\..\src\e_archmage.c" />
     <ClCompile Include="..\..\src\e_barbarian.c" />
@@ -176,8 +178,10 @@
     <ClCompile Include="..\..\src\gf2d_sprite.c" />
     <ClCompile Include="..\..\src\e_mage.c" />
     <ClCompile Include="..\..\src\player.c" />
+    <ClCompile Include="..\..\src\player2.c" />
     <ClCompile Include="..\..\src\shop.c" />
     <ClCompile Include="..\..\src\world.c" />
+    <ClCompile Include="e_companion.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\gfc\include\gfc_audio.h" />
@@ -207,10 +211,13 @@
     <ClInclude Include="..\..\gfc\simple_json\include\simple_json_value.h" />
     <ClInclude Include="..\..\gfc\simple_logger\include\simple_logger.h" />
     <ClInclude Include="..\..\include\camera.h" />
+    <ClInclude Include="..\..\include\editor.h" />
     <ClInclude Include="..\..\include\entity.h" />
     <ClInclude Include="..\..\include\e_archmage.h" />
     <ClInclude Include="..\..\include\e_barbarian.h" />
+    <ClInclude Include="..\..\include\e_boss.h" />
     <ClInclude Include="..\..\include\e_bullet.h" />
+    <ClInclude Include="..\..\include\e_companion.h" />
     <ClInclude Include="..\..\include\e_fighter.h" />
     <ClInclude Include="..\..\include\e_hero.h" />
     <ClInclude Include="..\..\include\e_mage.h" />
@@ -223,6 +230,7 @@
     <ClInclude Include="..\..\include\gf2d_graphics.h" />
     <ClInclude Include="..\..\include\gf2d_sprite.h" />
     <ClInclude Include="..\..\include\player.h" />
+    <ClInclude Include="..\..\include\player2.h" />
     <ClInclude Include="..\..\include\shop.h" />
     <ClInclude Include="..\..\include\world.h" />
     <ClInclude Include="..\..\src\e_paladin.h" />

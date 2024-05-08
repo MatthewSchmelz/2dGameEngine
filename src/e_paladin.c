@@ -18,11 +18,19 @@ Entity* paladin_new() {
 		slog("failed to spawn a player");
 		return NULL;
 	}
-	self->sprite = gf2d_sprite_load_all(
+	/*self->sprite = gf2d_sprite_load_all(
 		"images/ed210.png",
 		128,
 		128,
 		15,
+		0
+	); //Entity's sprite
+	*/
+	self->sprite = gf2d_sprite_load_all(
+		"images/mobwalk.png",
+		120,
+		80,
+		10,
 		0
 	); //Entity's sprite
 	self->frame = 0;
@@ -49,13 +57,53 @@ Entity* paladin_new() {
 		self->position = tile_to_position(vector2d(9, 0));
 	}
 	// Entity's Position
+	SJson* json = NULL;
+	SJson* wjson = NULL;
+	json = sj_load("config/enemies.json");
+	if (!json) {
+		slog("failed to load enemies json");
+		return NULL;
+	}
+
+	wjson = sj_object_get_value(json, "paladin");
+	if (!wjson) {
+		slog("Missing paladin object in enemies json");
+		sj_free(json);
+		return NULL;
+	}
+
+	float health;
+	if (!sj_object_get_value_as_float(wjson, "health", &health)) {
+		slog("paladin's health not initialized correctly.");
+	}
+	else {
+		printf("paladin's health: %.2f\n", health);
+	}
+
+	self->health = health;
+
+	wjson = sj_object_get_value(json, "paladin");
+	if (!wjson) {
+		slog("Missing paladin object in enemies json");
+		sj_free(json);
+		return NULL;
+	}
+
+	float speed;
+	if (!sj_object_get_value_as_float(wjson, "speed", &speed)) {
+		slog("paladin's health not initialized correctly.");
+	}
+	else {
+		printf("paladin's speed: %.2f\n", speed);
+	}
+	self->speed = speed;
 
 	self->think = paladin_think;
 	self->update = paladin_update;
 	self->free = paladin_free;
 	self->hitbox = gfc_circle(self->position.x, self->position.y, 400);
 	self->team = 1;
-	self->health = 3;
+	
 	self->pursue = paladin_pursue;
 	self->draw = paladin_draw;
 };
@@ -78,7 +126,7 @@ void paladin_think(Entity* self) {
 void paladin_update(Entity* self) {
 	if (!self) return;
 	self->frame += 0.1;
-	if (self->frame >= 16) self->frame = 0;
+	if (self->frame >= 10) self->frame = 0;
 	vector2d_add(self->position, self->position, self->velocity);
 	self->hitbox = gfc_circle(self->position.x + 64, self->position.y + 64, 50);
 };
@@ -91,7 +139,7 @@ void paladin_pursue(Entity* self, Entity* target) {
 	Vector2D dir = { 0 };
 	Sint32 mx = 0, my = 0;
 	if (!target || !self) {
-		slog("Missing Enities for fighter_pursue");
+		slog("Missing Enities for paladin_pursue");
 		return;
 	}
 	Vector2D loc = target->position;
@@ -120,12 +168,12 @@ void paladin_pursue(Entity* self, Entity* target) {
 
 
 
-	if (self->position.x < loc.x) dir.x = 1;
-	if (self->position.y < loc.y) dir.y = 1;
-	if (self->position.x > loc.x) dir.x = -1;
-	if (self->position.y > loc.y) dir.y = -1;
+	if (self->position.x < loc.x) dir.x = self->speed;
+	if (self->position.y < loc.y) dir.y = self->speed;
+	if (self->position.x > loc.x) dir.x = -self->speed;
+	if (self->position.y > loc.y) dir.y = -self->speed;
 	vector2d_normalize(&dir);
-	vector2d_scale(self->velocity, dir, 1);
+	vector2d_scale(self->velocity, dir, self->speed);
 
 
 
